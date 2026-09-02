@@ -1,5 +1,7 @@
 Recovery Device Tree for Tecno MegaPad 11 (T1101)
+
 Tested on building OrangeFox
+
 Known Bugs : OTG
 Basic   | Spec Sheet
 -------:|:-------------------------
