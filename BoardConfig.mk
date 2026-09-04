@@ -27,9 +27,6 @@ TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a55
 TARGET_USES_64_BIT_BINDER := true
 
 # Bootloader
-# NOTE: firmware project is t1101_m1101; the kernel/cmdline identify the board
-# as mt6789 (Helio G99 / MT8781 is the marketing name). ro.hardware = mt6789,
-# so first_stage uses fstab.mt6789 and init imports init.recovery.mt6789.rc.
 TARGET_BOOTLOADER_BOARD_NAME := TECNO-T1101
 TARGET_NO_BOOTLOADER := true
 
@@ -43,13 +40,6 @@ ALLOW_MISSING_DEPENDENCIES := true
 # dump that used to live in prebuilt/ - its overlays describe X1101 panels.
 
 # Kernel
-# vendor_boot-only build: the device keeps its STOCK boot.img kernel.
-# VERIFIED against the user's stock 260410V1046 dump: modules, DTB, fstab and
-# cmdline in this tree are byte-identical to stock. Device kernel
-# (5.10.237-android12-9-00014-gf82f7360927e-ab14119954) + module vermagic
-# (...g9d8141349139-dirty) is the exact pairing stock firmware ships - same
-# kernel version + KMI (android12-9), GKI modversions tolerates the
-# localversion skew. Re-verify anytime: python3 tools/check_fw_match.py <boot.img>
 TARGET_NO_KERNEL := true
 BOARD_RAMDISK_USE_LZ4 := true
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb.img
