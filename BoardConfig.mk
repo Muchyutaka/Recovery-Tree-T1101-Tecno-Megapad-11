@@ -36,8 +36,6 @@ BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 ALLOW_MISSING_DEPENDENCIES := true
 
 # DTBO
-# The dtbo partition stays stock (T1101's own). Do NOT flash the XPad dtbo
-# dump that used to live in prebuilt/ - its overlays describe X1101 panels.
 
 # Kernel
 TARGET_NO_KERNEL := true
