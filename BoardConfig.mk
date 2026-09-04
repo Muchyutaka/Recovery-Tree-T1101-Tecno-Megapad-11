@@ -35,9 +35,11 @@ BUILD_BROKEN_DUP_RULES := true
 BUILD_BROKEN_ELF_PREBUILT_PRODUCT_COPY_FILES := true
 ALLOW_MISSING_DEPENDENCIES := true
 
-# DTBO
+# dtbo stays stock, dont flash the xpad one
 
 # Kernel
+# the device keeps its stock boot.img kernel, so the modules in this tree
+# must match it. check with: python3 tools/check_fw_match.py <boot.img>
 TARGET_NO_KERNEL := true
 BOARD_RAMDISK_USE_LZ4 := true
 TARGET_PREBUILT_DTB := $(DEVICE_PATH)/prebuilt/dtb.img
@@ -52,8 +54,7 @@ BOARD_RAMDISK_OFFSET := 0x26f08000
 BOARD_DTB_SIZE := 209723
 BOARD_DTB_OFFSET := 0x07c88000
 BOARD_VENDOR_BASE := 0x3fff8000
-# NOTE: mkbootimg validates --vendor_cmdline tokens and rejects unknown
-# ones (lcm_name= caused "Unrecognized arguments"), so keep this stock-only.
+# mkbootimg rejects unknown tokens so keep this stock
 BOARD_VENDOR_CMDLINE := bootopt=64S3,32N2,64N2
 
 BOARD_MKBOOTIMG_ARGS += --dtb $(TARGET_PREBUILT_DTB)
@@ -70,7 +71,7 @@ BOARD_AVB_ENABLE := true
 
 # Partitions configs
 BOARD_FLASH_BLOCK_SIZE := 262144 # (BOARD_KERNEL_PAGESIZE * 64)
-# Sizes taken from the T1101 firmware dump (see fox_12.1 branch extraction)
+# sizes from the t1101 firmware dump
 BOARD_MAIN_SIZE := 9126805504
 BOARD_SUPER_PARTITION_SIZE := 9126805504
 BOARD_VENDOR_BOOTIMAGE_PARTITION_SIZE := 67108864

@@ -120,9 +120,16 @@ on post-fs-data
     mkdir /data/vendor_de/0/cryptoeng 0770 system system
 
     start health-hal-2-1
-    # adb-only gadget: requesting mtp,adb aborts the configfs gadget setup here
-    # (init.recovery.usb.rc, which mounts ffs.mtp, is not imported) and the
-    # UDC unbinds - killing adb the moment the UI comes up. AOSP's init.usb.rc
-    # handles a plain adb gadget on its own. MTP to be revisited later.
+    # adb only. requesting mtp here breaks the configfs gadget and kills adb
     setprop sys.usb.config adb
+
+    start otgd
+
+# otg host mode helper, script: /vendor/firmware/otgd.sh
+service otgd /system/bin/sh /vendor/firmware/otgd.sh
+    class main
+    user root
+    group root
+    # init refuses to start this without a seclabel, no transition from rootfs
+    seclabel u:r:recovery:s0
 

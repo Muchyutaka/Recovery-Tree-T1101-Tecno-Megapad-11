@@ -1,19 +1,15 @@
 #!/usr/bin/env python3
-"""Verify that this tree's kernel modules match a stock T1101 boot.img.
+"""Check that the modules in this tree match a stock boot.img kernel.
 
-The recovery in this tree is a vendor_boot ramdisk: the device keeps its STOCK
-kernel (boot.img), so every module under recovery/root/lib/modules must carry
-exactly the same kernel release (vermagic) as that boot.img. If it doesn't,
-insmod fails for all modules and the device bootloops (see BOOTLOOP_ANALYSIS.md).
+Recovery here is a vendor_boot ramdisk and the device keeps its stock
+kernel, so every module in recovery/root/lib/modules has to carry the
+same vermagic or insmod fails for everything.
 
 Usage:
-  python3 tools/check_fw_match.py <stock_boot.img>            # from your firmware
-  python3 tools/check_fw_match.py <Image|Image.gz>            # extracted kernel
-  # ...or skip images entirely and just compare by hand:
-  #   adb shell cat /proc_version   (device)   vs  vermagic printed below
+  python3 tools/check_fw_match.py <boot.img|Image|Image.gz>
+  # or by hand: adb shell cat /proc_version vs the vermagic printed below
 
 Exit codes: 0 = match, 1 = mismatch, 2 = could not determine kernel version.
-No dependencies beyond Python 3 (gzip kernels are handled internally).
 """
 
 import glob

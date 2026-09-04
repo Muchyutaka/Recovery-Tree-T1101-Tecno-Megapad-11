@@ -1,11 +1,7 @@
 name: OrangeFox vendor_boot build
 
-# Builds OrangeFox recovery for the Tecno MegaPad 11 (T1101).
-# Recovery lives in vendor_boot (GKI / virtual A/B): the device keeps its
-# STOCK kernel, only vendor_boot.img is produced and flashed.
-#
-# Manual run: Actions tab -> OrangeFox vendor_boot build -> Run workflow.
-# Or push to this branch (docs-only changes are skipped).
+# recovery is packed into vendor_boot, the stock boot.img stays as is.
+# run from the Actions tab, or push to the branch (docs-only pushes are skipped).
 
 on:
   workflow_dispatch:

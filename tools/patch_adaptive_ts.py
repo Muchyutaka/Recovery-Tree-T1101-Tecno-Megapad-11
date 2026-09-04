@@ -1,36 +1,13 @@
 #!/usr/bin/env python3
 """
-patch_adaptive_ts.py — neutralize the boot-mode gate in Transsion adaptive-ts.ko
+patch adaptive-ts.ko so the touch driver loads in recovery.
 
-Root cause of dead touch in custom recovery on TECNO T1101 (mt8781):
-  adaptive-ts.ko init_module() (tpd_device_init, src line 717) calls the
-  platform-ops boot-mode getter = mtk_get_boot_mode() @ .text+0x6c50:
+mtk_get_boot_mode() returns non zero on recovery boots and the module
+then skips the whole touch setup ("bootmode don't load touch !"). patch
+it to always return 0, same as a normal boot.
 
-      mtk_get_boot_mode():
-          np = of_find_node_by_path("/chosen")
-          prop = of_get_property(np, "atag,boot")     # u32 written by LK
-          raw = value; if raw > 9 -> 0
-          if (1 << raw) & 0x52  -> return 2           # META/FACTORY-ish: load
-          if (1 << raw) & 0x304 -> print "bootmode=%d don't load touch !"
-                                    return 1          # raw 2 = RECOVERY, 8, 9
-          return 0                                    # NORMAL
-
-  init_module() then does:  if (mode & ~2) -> "bootmode don't load touch !"
-  and NEVER registers the "tran-tpd" platform driver -> tpd_probe never runs
-  -> supplier list never parsed -> chipone_icnl9951r never probed -> no touch.
-  On a normal Android boot this returns 0 and everything works (stock dmesg:
-  "tpd_device_init 717: boot driver mode 0 load touch !").
-
-Fix: replace the first two instructions of mtk_get_boot_mode with
-      movz w0, #0        ; 0x52800000
-      ret                ; 0xD65F03C0
-  so the framework always behaves exactly like a normal boot. This is the
-  value the function returns on every working stock boot, so behaviour is
-  unchanged for normal mode; it only stops the recovery-mode refusal.
-  KCFI/CFI type-id words live outside the function body and are untouched.
-
-Usage:  python3 tools/patch_adaptive_ts.py [path/to/adaptive-ts.ko]
-Idempotent; verifies expected original bytes before patching.
+usage: python3 tools/patch_adaptive_ts.py [adaptive-ts.ko]
+idempotent, checks the original bytes first.
 """
 import hashlib
 import sys
