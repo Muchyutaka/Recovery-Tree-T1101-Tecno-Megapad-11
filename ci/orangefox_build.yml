@@ -1,0 +1,91 @@
+name: OrangeFox vendor_boot build
+
+# recovery is packed into vendor_boot, the stock boot.img stays as is.
+# run from the Actions tab, or push to the branch (docs-only pushes are skipped).
+
+on:
+  workflow_dispatch:
+  push:
+    paths-ignore:
+      - "**.md"
+      - ".gitignore"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - name: Check out device tree
+        uses: actions/checkout@v4
+
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dot /opt/ghc \
+            /usr/local/.ghcup /usr/local/share/boost /usr/lib/jvm || true
+          sudo docker image prune -af || true
+          df -h /
+
+      - name: Install build prerequisites
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -yq git git-lfs python3 python-is-python3 curl wget \
+            repo aria2 cpio lz4 zip unzip rsync build-essential flex bison libncurses-dev \
+            libtinfo5 libssl-dev gcc-multilib g++-multilib cmake ninja-build
+          # OrangeFox environment setup scripts
+          git clone https://gitlab.com/OrangeFox/misc/scripts fox_scripts
+          cd fox_scripts
+          sudo bash setup/android_build_env.sh
+          sed -i 's/cd -/cd ../g' setup/install_android_sdk.sh
+          sudo bash setup/install_android_sdk.sh
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          distribution: "zulu"
+          java-version: "11"
+
+      - name: Increase swap
+        uses: pierotofy/set-swap-space@master
+        with:
+          swap-size-gb: 16
+
+      - name: Sync OrangeFox 12.1 sources
+        run: |
+          git clone https://gitlab.com/OrangeFox/sync.git fox_sync
+          cd fox_sync
+          ./orangefox_sync.sh --branch 12.1 --path "$GITHUB_WORKSPACE/fox_12.1"
+          df -h /
+
+      - name: Place device tree
+        run: |
+          mkdir -p "$GITHUB_WORKSPACE/fox_12.1/device/tecno"
+          rsync -a --exclude='.git' "$GITHUB_WORKSPACE/" \
+            "$GITHUB_WORKSPACE/fox_12.1/device/tecno/T1101/"
+          ls "$GITHUB_WORKSPACE/fox_12.1/device/tecno/T1101"
+
+      - name: Build vendor_boot
+        working-directory: ${{ github.workspace }}/fox_12.1
+        run: |
+          source build/envsetup.sh
+          export ALLOW_MISSING_DEPENDENCIES=true
+          lunch fox_T1101-eng
+          mka adbd vendorbootimage -j"$(nproc --all)"
+
+      - name: Collect output
+        if: always()
+        run: |
+          mkdir -p out
+          OUT="$GITHUB_WORKSPACE/fox_12.1/out/target/product/T1101"
+          ls -al "$OUT" || true
+          cp "$OUT/vendor_boot.img" out/OrangeFox-T1101-vendor_boot.img 2>/dev/null || true
+          cp "$OUT"/recovery.log out/ 2>/dev/null || true
+          sha256sum out/* 2>/dev/null || true
+
+      - name: Upload artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: OrangeFox-T1101-vendor_boot
+          path: out/*

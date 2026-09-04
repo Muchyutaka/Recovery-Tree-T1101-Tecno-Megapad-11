@@ -1,0 +1,6 @@
+# Alias: at runtime ro.hardware resolves to mt8781 on this device (the
+# OrangeFox build looked for fstab.mt8781 / init.recovery.mt8781.rc), while the
+# DTB/firmware also uses mt6789. Stock ships BOTH names with identical content;
+# this file re-exports the mt6789 rc so it is imported under either name.
+# (init de-duplicates imported files, so a double import is harmless.)
+import /init.recovery.mt6789.rc
