@@ -11,7 +11,8 @@ Recovery device tree for the **Tecno MegaPad 11 (T1101)**, tested building **Ora
 2. Disable `vbmeta` verification, if you haven't already.
 3. Reboot to system and complete initial setup.
 4. Reboot back into fastboot mode.
-5. Flash the recovery image to the `vendor_boot` partition:
+5. Download the custom recovery `vendor_boot.img` from the [Releases](../../releases) page.
+6. Flash the recovery image to the `vendor_boot` partition:
    ```
    fastboot flash vendor_boot customrecoveryfilename.img
    ```
