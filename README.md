@@ -1,6 +1,6 @@
 Recovery device tree for the **Tecno MegaPad 11 (T1101)**, tested building **OrangeFox Recovery**.
 
-**Known bugs:** None I think idk
+**Known bugs:** None I think if you found any feel free to report issue
 
 ## Flashing Instructions
 
